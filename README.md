@@ -147,15 +147,27 @@ dart test --concurrency=1
 
 ## 6. Instagram anbinden (Meta-App)
 
-1. Auf https://developers.facebook.com eine App vom Typ „Business“ anlegen.
-2. Produkt **Instagram** hinzufügen, Variante „API-Einrichtung mit Instagram-Login“.
-3. Als OAuth-Redirect-URL eintragen: `<PUBLIC_BASE_URL>/api/oauth/callback`.
-4. App-ID und App-Secret als `INSTAGRAM_APP_ID` und `INSTAGRAM_APP_SECRET` in `server/.env` eintragen.
-5. Für Hashtags und Wettbewerber zusätzlich Produkt **Facebook Login for Business** einrichten und
-   `FACEBOOK_APP_ID` und `FACEBOOK_APP_SECRET` eintragen (gleiche Redirect-URL).
-6. Als Data-Deletion-Callback eintragen: `<PUBLIC_BASE_URL>/api/meta/data-deletion`.
-7. Solange die App im Entwicklungsmodus ist, funktionieren nur Instagram-Accounts, die in der Meta-App als
-   Tester eingetragen sind. Für alle anderen braucht es App Review und Business-Verifizierung.
+Seit Oktober 2026 erlaubt Meta für neue Apps nur noch den **Unified Login**. Der Server unterstützt ihn
+(Variable `FACEBOOK_CONFIG_ID`). Ältere Apps können weiter den Instagram-Login nutzen
+(`INSTAGRAM_APP_ID`/`INSTAGRAM_APP_SECRET`).
+
+Unified Login (neue Apps):
+
+1. Ein Business-Portfolio anlegen (business.facebook.com) und die Meta-App diesem Portfolio zuordnen.
+2. In der App: Anwendungsfälle → „Nachrichten und Inhalte auf Instagram verwalten“ → Anpassen →
+   „API-Einrichtung mit Unified Login“ → neue Konfiguration erstellen (Token-Typ System-User,
+   Ablauf „Nie“), Berechtigungen `instagram_basic`, `instagram_manage_insights`,
+   `instagram_content_publish`, `instagram_manage_comments` wählen.
+3. Als Weiterleitungs-URL der Konfiguration eintragen: `<PUBLIC_BASE_URL>/api/oauth/callback`.
+4. In `server/.env` bzw. bei Render eintragen: `FACEBOOK_APP_ID` (App-ID), `FACEBOOK_APP_SECRET`
+   (App-Geheimcode, unter App-Einstellungen → Allgemein) und `FACEBOOK_CONFIG_ID` (ID der Konfiguration).
+5. Als Data-Deletion-Callback eintragen: `<PUBLIC_BASE_URL>/api/meta/data-deletion`.
+6. In der App unter Mehr → Accounts → „Account verbinden“ → „Meta Login“ wählen.
+
+Solange die App im Entwicklungsmodus ist, funktionieren nur Konten mit einer Rolle in der Meta-App
+(Admin, Entwickler, Tester). Für alle anderen braucht es App Review und Business-Verifizierung.
+Noch nicht mit einer echten Meta-App geprüft: der Unified-Login-Ablauf selbst sowie Statistik-,
+Hashtag- und Veröffentlichungs-Endpunkte mit System-User-Tokens.
 
 Instagram verlangt für den Login eine **HTTPS-Adresse**. Lokal geht das zum Beispiel mit einem Tunnel
 (etwa Cloudflare Tunnel oder ngrok), dessen Adresse dann `PUBLIC_BASE_URL` ist.

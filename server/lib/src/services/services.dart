@@ -66,7 +66,7 @@ class Services {
       throw ApiError(
         409,
         'facebook_login_required',
-        'Diese Funktion gibt es nur für Accounts, die über Facebook Login mit einer Facebook-Seite verbunden sind.',
+        'Diese Funktion gibt es nur für Accounts, die über Facebook Login bzw. Meta Unified Login verbunden sind.',
       );
     }
     return a;

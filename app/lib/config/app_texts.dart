@@ -410,6 +410,8 @@ class T {
   static const loginInstagram = 'Instagram Login';
   static const loginInstagramSub = 'Standard. Keine Facebook-Seite nötig.';
   static const loginFacebook = 'Facebook Login';
+  static const loginMeta = 'Meta Login';
+  static const loginMetaSub = 'Empfohlen. Über dein Facebook-Konto, keine Facebook-Seite nötig.';
   static const loginFacebookSub = 'Für Hashtags und Wettbewerber. Braucht eine verknüpfte Facebook-Seite.';
   static const notConfiguredTitle = 'Auf dem Server noch nicht eingerichtet';
   static const instagramNotConfigured =

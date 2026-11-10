@@ -132,6 +132,7 @@ class AuthRoutes {
       'server': {
         'instagram_login': s.config.instagramLoginConfigured,
         'facebook_login': s.config.facebookLoginConfigured,
+        'unified_login': s.config.facebookLoginConfigured && s.config.unifiedLogin,
         'ai': s.config.aiConfigured,
       },
     });

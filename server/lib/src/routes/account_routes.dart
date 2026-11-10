@@ -226,7 +226,9 @@ class AccountRoutes {
       if (loginType == 'facebook') {
         final linked = await s.instagram.facebookAccounts(token.accessToken);
         if (linked.isEmpty) {
-          throw ApiError(409, 'no_facebook_page', 'Es wurde kein Instagram-Account gefunden, der mit einer Facebook-Seite verknüpft ist.');
+          throw ApiError(409, 'no_facebook_page', s.config.unifiedLogin
+              ? 'Es wurde kein freigegebener Instagram-Account gefunden. Wähle bei der Meta-Anmeldung einen Instagram-Account aus.'
+              : 'Es wurde kein Instagram-Account gefunden, der mit einer Facebook-Seite verknüpft ist.');
         }
         // Annahme: Sind mehrere Seiten verknüpft, wird beim Neu-Verbinden der
         // passende Account gewählt, sonst der erste noch nicht verbundene.
@@ -247,7 +249,7 @@ class AccountRoutes {
         }
         chosen ??= linked.first;
         igUserId = chosen.igUserId;
-        pageId = chosen.pageId;
+        pageId = chosen.pageId.isEmpty ? null : chosen.pageId;
       } else {
         igUserId = token.igUserId ?? '';
       }

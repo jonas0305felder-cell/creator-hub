@@ -30,6 +30,8 @@ services:
         sync: false
       - key: FACEBOOK_APP_SECRET
         sync: false
+      - key: FACEBOOK_CONFIG_ID
+        sync: false
       - key: AI_API_KEY
         sync: false
 

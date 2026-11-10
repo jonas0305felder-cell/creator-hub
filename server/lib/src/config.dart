@@ -15,6 +15,7 @@ class Config {
     required this.instagramAppSecret,
     required this.facebookAppId,
     required this.facebookAppSecret,
+    this.facebookConfigId = '',
     required this.graphApiVersion,
     required this.aiApiKey,
     required this.aiModel,
@@ -49,6 +50,12 @@ class Config {
   final String instagramAppSecret;
   final String facebookAppId;
   final String facebookAppSecret;
+
+  /// Konfigurations-ID für Metas „Instagram API mit Unified Login“
+  /// (Pflicht für neue Meta-Apps seit Oktober 2026). Ist sie gesetzt, läuft
+  /// der Facebook-Weg über Unified Login: keine Facebook-Seite nötig.
+  final String facebookConfigId;
+  bool get unifiedLogin => facebookConfigId.isNotEmpty;
 
   /// Graph-API-Version laut Spezifikation (geprüft am 10.11.2026: v25.0).
   final String graphApiVersion;
@@ -97,6 +104,7 @@ class Config {
       instagramAppSecret: get('INSTAGRAM_APP_SECRET'),
       facebookAppId: get('FACEBOOK_APP_ID'),
       facebookAppSecret: get('FACEBOOK_APP_SECRET'),
+      facebookConfigId: get('FACEBOOK_CONFIG_ID'),
       graphApiVersion: get('GRAPH_API_VERSION', 'v25.0'),
       aiApiKey: get('AI_API_KEY'),
       aiModel: get('AI_MODEL', 'claude-opus-5-5'),

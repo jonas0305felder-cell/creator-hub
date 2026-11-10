@@ -175,6 +175,19 @@ class GraphInstagramApi implements InstagramApi {
     required String state,
     required String redirectUri,
   }) {
+    if (loginType == 'facebook' && _config.unifiedLogin) {
+      // Unified Login: Berechtigungen stehen in der Konfiguration (config_id),
+      // nicht im Parameter scope.
+      return Uri.https('www.facebook.com', '/dialog/oauth', {
+        'client_id': _config.facebookAppId,
+        'config_id': _config.facebookConfigId,
+        'redirect_uri': redirectUri,
+        'response_type': 'code',
+        'state': state,
+        // Zeigt die Anmeldung erneut an (anderen Account wählen).
+        'prompt': 'login',
+      });
+    }
     if (loginType == 'facebook') {
       return Uri.https('www.facebook.com', '/$_v/dialog/oauth', {
         'client_id': _config.facebookAppId,
@@ -202,6 +215,19 @@ class GraphInstagramApi implements InstagramApi {
     required String code,
     required String redirectUri,
   }) async {
+    if (loginType == 'facebook' && _config.unifiedLogin) {
+      // Liefert ein System-User-Token des Business-Portfolios; die Laufzeit
+      // legt die Konfiguration fest (Standard: läuft nicht ab).
+      final json = await _getJson(
+        Uri.https('graph.facebook.com', '/$_v/oauth/access_token', {
+          'client_id': _config.facebookAppId,
+          'client_secret': _config.facebookAppSecret,
+          'redirect_uri': redirectUri,
+          'code': code,
+        }),
+      );
+      return _token(json);
+    }
     if (loginType == 'facebook') {
       final short = await _getJson(
         Uri.https('graph.facebook.com', '/$_v/oauth/access_token', {
@@ -252,6 +278,23 @@ class GraphInstagramApi implements InstagramApi {
 
   @override
   Future<List<FacebookLinkedAccount>> facebookAccounts(String userToken) async {
+    if (_config.unifiedLogin) {
+      // Unified Login: freigegebene Instagram-Accounts ohne Facebook-Seite.
+      final json = await _getJson(
+        Uri.https('graph.facebook.com', '/$_v/me/assigned_instagram_accounts', {
+          'fields': 'id,username',
+          'access_token': userToken,
+        }),
+      );
+      return [
+        for (final ig in (json['data'] as List? ?? const []))
+          FacebookLinkedAccount(
+            pageId: '',
+            igUserId: (ig as Map<String, dynamic>)['id'].toString(),
+            username: (ig['username'] ?? '').toString(),
+          ),
+      ];
+    }
     final json = await _getJson(
       Uri.https('graph.facebook.com', '/$_v/me/accounts', {
         'fields': 'id,name,instagram_business_account{id,username}',
@@ -276,6 +319,11 @@ class GraphInstagramApi implements InstagramApi {
 
   @override
   Future<TokenResult> refreshToken(String loginType, String token) async {
+    if (loginType == 'facebook' && _config.unifiedLogin) {
+      // System-User-Tokens lassen sich nicht per fb_exchange_token verlängern.
+      // Läuft eines ab, meldet die App „neu verbinden“.
+      throw InstagramApiException('Token kann nicht verlängert werden.', code: 190);
+    }
     if (loginType == 'facebook') {
       final json = await _getJson(
         Uri.https('graph.facebook.com', '/$_v/oauth/access_token', {
@@ -527,7 +575,7 @@ class GraphInstagramApi implements InstagramApi {
 
   static DateTime? _expiry(Object? expiresIn) {
     final seconds = expiresIn is num ? expiresIn.toInt() : int.tryParse('$expiresIn');
-    if (seconds == null) return null;
+    if (seconds == null || seconds <= 0) return null;
     return DateTime.now().toUtc().add(Duration(seconds: seconds));
   }
 }

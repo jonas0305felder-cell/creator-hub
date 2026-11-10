@@ -235,6 +235,7 @@ class _ConnectInfoSheet extends StatelessWidget {
     final theme = Theme.of(context);
     final instagram = server['instagram_login'] == true;
     final facebook = server['facebook_login'] == true;
+    final unified = server['unified_login'] == true;
     return Padding(
       padding: const EdgeInsets.fromLTRB(AppSpacing.l, 0, AppSpacing.l, AppSpacing.l),
       child: SingleChildScrollView(
@@ -264,8 +265,8 @@ class _ConnectInfoSheet extends StatelessWidget {
               child: ListTile(
                 enabled: facebook,
                 leading: const Icon(Icons.facebook),
-                title: const Text(T.loginFacebook),
-                subtitle: Text(facebook ? T.loginFacebookSub : T.notConfiguredTitle),
+                title: Text(unified ? T.loginMeta : T.loginFacebook),
+                subtitle: Text(!facebook ? T.notConfiguredTitle : (unified ? T.loginMetaSub : T.loginFacebookSub)),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => Navigator.pop(context, 'facebook'),
               ),
