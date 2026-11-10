@@ -2,14 +2,22 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:cryptography/cryptography.dart';
+import 'package:cryptography/dart.dart';
 
 /// Kryptografie-Helfer: Passwörter, Sitzungs-Tokens, Token-Verschlüsselung.
 class Security {
-  Security(String base64Key)
-    : _key = base64Key.isEmpty ? null : SecretKey(base64Decode(base64Key)) {
-    if (_key != null && base64Decode(base64Key).length != 32) {
-      throw ArgumentError('TOKEN_ENCRYPTION_KEY muss 32 Byte (Base64) haben.');
+  Security(String base64Key) : _key = base64Key.isEmpty ? null : SecretKey(keyBytes(base64Key));
+
+  /// 32 Byte Schlüssel: direkt aus Base64, sonst als SHA-256 des Textes
+  /// (z. B. für automatisch erzeugte Werte des Hosting-Anbieters).
+  static List<int> keyBytes(String value) {
+    try {
+      final bytes = base64Decode(value.trim());
+      if (bytes.length == 32) return bytes;
+    } on FormatException {
+      // kein gültiges Base64: unten ableiten
     }
+    return const DartSha256().hashSync(utf8.encode(value)).bytes;
   }
 
   final SecretKey? _key;

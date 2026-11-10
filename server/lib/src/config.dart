@@ -76,13 +76,18 @@ class Config {
     }
 
     final port = int.tryParse(get('PORT', '8080')) ?? 8080;
-    final base = get('PUBLIC_BASE_URL', 'http://localhost:$port');
+    // Render setzt RENDER_EXTERNAL_URL automatisch auf die öffentliche Adresse.
+    final base = get('PUBLIC_BASE_URL', get('RENDER_EXTERNAL_URL', 'http://localhost:$port'));
+    var databaseUrl = get('DATABASE_URL', 'postgresql://contenthub:contenthub@localhost:5432/contenthub?sslmode=disable');
+    // DATABASE_SSLMODE ergänzt sslmode, wenn die URL keine Angabe enthält
+    // (z. B. bei der internen Datenbank-URL von Render).
+    final sslMode = get('DATABASE_SSLMODE');
+    if (sslMode.isNotEmpty && !databaseUrl.contains('sslmode=')) {
+      databaseUrl += '${databaseUrl.contains('?') ? '&' : '?'}sslmode=$sslMode';
+    }
     return Config(
       port: port,
-      databaseUrl: get(
-        'DATABASE_URL',
-        'postgresql://contenthub:contenthub@localhost:5432/contenthub?sslmode=disable',
-      ),
+      databaseUrl: databaseUrl,
       publicBaseUrl: base.endsWith('/') ? base.substring(0, base.length - 1) : base,
       appCallbackUrl: get('APP_CALLBACK_URL', '$base/oauth-fertig'),
       tokenEncryptionKey: get('TOKEN_ENCRYPTION_KEY'),

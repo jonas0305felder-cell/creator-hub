@@ -24,7 +24,12 @@ void main() {
 
     test('ohne Schlüssel wird nichts gespeichert', () {
       expect(() => Security('').encrypt('x'), throwsStateError);
-      expect(() => Security(base64Encode([1, 2, 3])), throwsArgumentError);
+    });
+
+    test('Schlüssel ohne 32 Byte wird per SHA-256 abgeleitet', () async {
+      expect(Security.keyBytes('kein-base64-wert!'), hasLength(32));
+      final security = Security('automatisch-erzeugter-wert');
+      expect(await security.decrypt(await security.encrypt('geheim')), 'geheim');
     });
   });
 

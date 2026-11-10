@@ -1,0 +1,41 @@
+# Render-Blueprint: legt Datenbank und Server mit einem Klick an.
+# Start: https://dashboard.render.com/blueprint/new?repo=https://github.com/jonas0305felder-cell/creator-hub
+services:
+  - type: web
+    name: content-hub
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: content-hub-db
+          property: connectionString
+      - key: DATABASE_SSLMODE
+        value: disable
+      - key: TOKEN_ENCRYPTION_KEY
+        generateValue: true
+      - key: STORAGE_DIR
+        value: /tmp/storage
+      - key: ENABLE_SCHEDULER
+        value: "true"
+      # Später eintragen (Render → content-hub → Environment):
+      - key: INSTAGRAM_APP_ID
+        sync: false
+      - key: INSTAGRAM_APP_SECRET
+        sync: false
+      - key: FACEBOOK_APP_ID
+        sync: false
+      - key: FACEBOOK_APP_SECRET
+        sync: false
+      - key: AI_API_KEY
+        sync: false
+
+databases:
+  - name: content-hub-db
+    plan: free
+    region: frankfurt
+    databaseName: contenthub
+    user: contenthub
