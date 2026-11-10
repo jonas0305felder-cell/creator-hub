@@ -1,0 +1,29 @@
+# Startet Datenbank und Content-Hub-Server.
+# Werte in server/.env eintragen (Vorlage: server/.env.example).
+# DATABASE_URL wird hier fest auf die Datenbank im Container gesetzt.
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: contenthub
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-bitte-aendern}
+      POSTGRES_DB: contenthub
+    volumes:
+      - db-data:/var/lib/postgresql/data
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on: [db]
+    env_file: server/.env
+    environment:
+      DATABASE_URL: postgresql://contenthub:${DB_PASSWORD:-bitte-aendern}@db:5432/contenthub?sslmode=disable
+      WEB_DIR: /app/web
+      STORAGE_DIR: /data/storage
+    ports:
+      - "8080:8080"
+    volumes:
+      - media:/data
+volumes:
+  db-data:
+  media:

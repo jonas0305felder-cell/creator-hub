@@ -1,0 +1,18 @@
+name: content_hub_server
+description: Backend für Content-Hub (Instagram-Sync, Veröffentlichen, KI-Vorschläge, Trends).
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.9.0
+dependencies:
+  cryptography: ^2.9.0
+  http: ^1.6.0
+  postgres: ^3.6.0
+  shelf: ^1.4.3
+  shelf_router: ^1.1.5
+  shelf_static: ^1.2.0
+  xml: ^7.1.0
+dev_dependencies:
+  lints: ^6.1.0
+  test: ^1.33.0
